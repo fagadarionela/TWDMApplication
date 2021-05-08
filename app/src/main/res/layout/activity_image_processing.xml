@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:orientation="vertical"
+    tools:context="com.example.twdmapplication.ImageProcessingActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonChooseImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select an image" />
+
+        <Button
+            android:id="@+id/buttonProcessDefaultImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Default image" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imageViewOriginal"
+            android:layout_width="match_parent"
+            android:layout_height="293dp" />
+
+        <Button
+            android:id="@+id/buttonProcessImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Process" />
+
+        <ImageView
+            android:id="@+id/imageViewProcessed"
+            android:layout_width="match_parent"
+            android:layout_height="338dp" />
+    </LinearLayout>
+
+
+</LinearLayout>
