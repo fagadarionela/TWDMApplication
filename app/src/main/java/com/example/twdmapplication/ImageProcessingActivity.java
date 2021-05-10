@@ -39,11 +39,11 @@ public class ImageProcessingActivity extends AppCompatActivity implements View.O
 
     private Button buttonChooseImage;
     private Button buttonProcessImage;
-    private Button buttonProcessDefaultImage;
+    private Button buttonChooseDefaultImage;
     private ImageView imageViewOriginal;
     private ImageView imageViewProcessed;
 
-    private static final String IPV4_ADDRESS = "192.168.1.10";
+    private static final String IPV4_ADDRESS = "192.168.1.10"; //TODO: Change the ipv4 address
     private static final String PORT_NUMBER = "5000";
 
     private Bitmap originalBitmap;
@@ -57,29 +57,30 @@ public class ImageProcessingActivity extends AppCompatActivity implements View.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_processing);
 
-        //request storage in order to access the storage to upload the image
+        // Request storage in order to access the storage to upload the image
         requestStoragePermission();
 
-        //Initializing views
+        // Initializing views
         buttonChooseImage = findViewById(R.id.buttonChooseImage);
         buttonProcessImage = findViewById(R.id.buttonProcessImage);
-        buttonProcessDefaultImage = findViewById(R.id.buttonProcessDefaultImage);
+        buttonChooseDefaultImage = findViewById(R.id.buttonChooseDefaultImage);
         imageViewOriginal = findViewById(R.id.imageViewOriginal);
         imageViewProcessed = findViewById(R.id.imageViewProcessed);
 
-        //Setting clicklistener
+        // Setting clickListeners
         buttonChooseImage.setOnClickListener(this);
         buttonProcessImage.setOnClickListener(this);
-        buttonProcessDefaultImage.setOnClickListener(this);
+        buttonChooseDefaultImage.setOnClickListener(this);
     }
 
-    //Requesting permission
+    // Requesting permission
     private void requestStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
             return;
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_CODE);
     }
 
+    // Choose an image from gallery
     private void showFileChooser() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -87,6 +88,7 @@ public class ImageProcessingActivity extends AppCompatActivity implements View.O
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE_CODE);
     }
 
+    // Called when an image is chosen
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -94,8 +96,8 @@ public class ImageProcessingActivity extends AppCompatActivity implements View.O
             Uri filePath = data.getData();
             try {
                 originalBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                imageViewOriginal.setImageBitmap(originalBitmap);
-                imageViewProcessed.setImageResource(android.R.color.transparent);
+                imageViewOriginal.setImageBitmap(originalBitmap);   //the chosen image
+                imageViewProcessed.setImageResource(android.R.color.transparent);   //the processed image became transparent
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -112,6 +114,7 @@ public class ImageProcessingActivity extends AppCompatActivity implements View.O
     }
 
 
+    // onClick method is called when a view is pressed (in this case, a button)
     @Override
     public void onClick(View v) {
         if (v == buttonChooseImage) {
@@ -119,13 +122,13 @@ public class ImageProcessingActivity extends AppCompatActivity implements View.O
         }
         if (v == buttonProcessImage) {
             if (originalBitmap != null) {
-                connectServer(originalBitmap);
+                connectServer(originalBitmap); // Make a connection with Python server and send the image
             }
             else{
                 Toast.makeText(this, "Choose an image first", Toast.LENGTH_LONG).show();
             }
         }
-        if (v == buttonProcessDefaultImage) {
+        if (v == buttonChooseDefaultImage) {
             InputStream inputStream;
             try {
                 inputStream = getAssets().open("image.jpg");
@@ -134,8 +137,8 @@ public class ImageProcessingActivity extends AppCompatActivity implements View.O
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            imageViewOriginal.setImageBitmap(originalBitmap);
-            imageViewProcessed.setImageResource(android.R.color.transparent);
+            imageViewOriginal.setImageBitmap(originalBitmap);   // Put the default image
+            imageViewProcessed.setImageResource(android.R.color.transparent);   // Make the processed image transparent
         }
     }
 
@@ -150,6 +153,7 @@ public class ImageProcessingActivity extends AppCompatActivity implements View.O
 
         String postUrl = "http://" + IPV4_ADDRESS + ":" + PORT_NUMBER + "/";
 
+        // Construct the body of the post method
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -172,7 +176,7 @@ public class ImageProcessingActivity extends AppCompatActivity implements View.O
     }
 
     void postRequest(String postUrl, RequestBody postBody) {
-
+        // Create a http client
         OkHttpClient client = new OkHttpClient.Builder()
                 .addNetworkInterceptor(new Interceptor() {
                     @Override
@@ -183,11 +187,13 @@ public class ImageProcessingActivity extends AppCompatActivity implements View.O
                 })
                 .build();
 
+        // Construct the request
         Request request = new Request.Builder()
                 .url(postUrl)
                 .post(postBody)
                 .build();
 
+        // Send the request with http client to the python server
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -201,6 +207,7 @@ public class ImageProcessingActivity extends AppCompatActivity implements View.O
             @Override
             public void onResponse(Call call, final Response response) {
                 assert response.body() != null;
+                // Construct the image and then make it visible in the imageView
                 InputStream inputStream = response.body().byteStream();
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
                 grayscaleBitmap = BitmapFactory.decodeStream(bufferedInputStream);

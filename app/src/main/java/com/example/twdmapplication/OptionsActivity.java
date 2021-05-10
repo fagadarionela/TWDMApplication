@@ -17,11 +17,11 @@ public class OptionsActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_options);
 
-        // defining the cards
+        // Defining the cards
         firstCard = findViewById(R.id.firstCard);
         secondCard = findViewById(R.id.secondCard);
 
-        // set the listeners for the cards
+        // Set the listeners for the cards
         firstCard.setOnClickListener(this);
         secondCard.setOnClickListener(this);
     }
@@ -31,11 +31,11 @@ public class OptionsActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         Intent intent;
         switch (v.getId()) {
-            case R.id.firstCard:    //wifi
+            case R.id.firstCard:    // Wifi
                 intent = new Intent(this, WifiActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.secondCard:   //image processing
+            case R.id.secondCard:   // Image processing
                 intent = new Intent(this, ImageProcessingActivity.class);
                 startActivity(intent);
                 break;

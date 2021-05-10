@@ -38,7 +38,6 @@ public class WifiActivity extends AppCompatActivity implements View.OnClickListe
 
     int size = 0;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,38 +46,44 @@ public class WifiActivity extends AppCompatActivity implements View.OnClickListe
         buttonScan.setOnClickListener(this);
         listOfNetworks = findViewById(R.id.list);
 
+        // Initialise the WifiManager
         wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
+        // Check if Wifi is enabled
         if (!wifi.isWifiEnabled()) {
             Toast.makeText(getApplicationContext(), "Wifi is disabled..making it enabled", Toast.LENGTH_LONG).show();
             wifi.setWifiEnabled(true);
         }
+
+        // Create an adapter that will be called when the list of network interfaces is changed
         this.adapter = new SimpleAdapter(this, arraylist, R.layout.row, new String[]{ITEM_KEY}, new int[]{R.id.list_value});
         listOfNetworks.setAdapter(this.adapter);
+
+        // Request permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.CHANGE_WIFI_STATE) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.CHANGE_WIFI_STATE}, PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
         }
+
+        // Register a callable method when the scan of the wifi interfaces is done
         registerReceiver(new BroadcastReceiver() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onReceive(Context c, Intent intent) {
                 results = wifi.getScanResults();
                 size = results.size();
-                for (ScanResult item : results) {
-                    System.out.println(item);
-                }
                 getScanningResults();
             }
         }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        //do something, permission was previously granted; or legacy device
     }
 
+    // Method called to scan for wifi interfaces
     public void scan() {
         arraylist.clear();
         wifi.startScan();
         Toast.makeText(this, "Scanning....", Toast.LENGTH_SHORT).show();
     }
 
+    // Get the wifi interfaces and create a list of them
     public void getScanningResults() {
         arraylist.clear();
         if (size != 1) {
